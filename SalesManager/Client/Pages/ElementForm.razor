@@ -1,0 +1,56 @@
+﻿@using SalesManager.Shared.Entities;
+<div class="card mb-3">
+    <div class="card-header">
+        <div class="row row-cols-2">
+            <div class="col text-start">Element</div>
+            @if (Window.SubElements.Count > 1)
+            {
+                <div class="col text-end">
+                    <button class="btn btn-danger" @onclick="(() => RemoveElement())">
+                        <i class="oi oi-trash"></i>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div>
+            <div class="mb-3">
+                <label>Type</label>
+                <InputText @bind-Value="Element.Type" class="form-control" />
+                <ValidationMessage For="@(() => Element.Type)" />
+            </div>
+
+            <div class="row row-cols-2">
+                <div class="col">
+                    <label>Width</label>
+                    <InputNumber @bind-Value="Element.Width" class="form-control" />
+                    <ValidationMessage For="@(() => Element.Width)" />
+                </div>
+
+                <div class="col">
+                    <label>Height</label>
+                    <InputNumber @bind-Value="Element.Height" class="form-control" />
+                    <ValidationMessage For="@(() => Element.Height)" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Window Window { get; set; } = new();
+
+    [Parameter]
+    public Element Element { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Element> OnRemoveClicked { get; set; }
+
+    private async Task RemoveElement()
+    {
+        await OnRemoveClicked.InvokeAsync(Element);
+    }
+}

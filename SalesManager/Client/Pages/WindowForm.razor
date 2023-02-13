@@ -1,0 +1,70 @@
+﻿@using SalesManager.Shared.Entities;
+
+<div class="card mb-3">
+
+    <div class="card-header">
+        <div class="row row-cols-2">
+            <div class="col text-start">Window @(Order.Windows.IndexOf(Window)+1)</div>
+            @if (Order.Windows.Count > 1)
+            {
+                <div class="col text-end">
+                    <button class="btn btn-danger" @onclick="(() => RemoveWindow())">
+                        <i class="oi oi-trash"></i>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="mb-3">
+            <label>Window Name</label>
+            <InputText @bind-Value="Window.Name" class="form-control" />
+            <ValidationMessage For="@(() => Window.Name)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Quantity</label>
+            <InputNumber @bind-Value="Window.Quantity" class="form-control" />
+            <ValidationMessage For="@(() => Window.Quantity)" />
+        </div>
+
+        @foreach (var element in Window.SubElements)
+        {
+            <ElementForm Window="Window" Element="element" OnRemoveClicked="RemoveElement"></ElementForm>
+        }
+    </div>
+
+    <div class="card-footer text-end">
+        <a class="btn btn-link" href="javascript:void(0)" @onclick="(() => AddElement())">+ Add More Element</a>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Order Order { get; set; } = new();
+
+    [Parameter]
+    public Window Window { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Window> OnRemoveClicked { get; set; }
+
+    private async Task RemoveWindow()
+    {
+        await OnRemoveClicked.InvokeAsync(Window);
+    }
+
+    private void AddElement()
+    {
+        Window.SubElements.Add(new Element
+        {
+            Id = Guid.NewGuid()
+        });
+    }
+
+    private void RemoveElement(Element element)
+    {
+        Window.SubElements.Remove(element);
+    }
+}

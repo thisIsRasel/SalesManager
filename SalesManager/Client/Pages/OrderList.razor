@@ -1,0 +1,79 @@
+﻿@page "/orders"
+@using SalesManager.Client.Services.OrderService;
+@using SalesManager.Shared.Entities;
+
+@inject IOrderService OrderService;
+@inject NavigationManager NavigationManager;
+
+<div class="row row-cols-2 mb-4">
+    <div class="col text-start">
+        <h3>Orders</h3>
+    </div>
+    
+    <div class="col text-end">
+        <button class="btn btn-primary" @onclick="ShowCreateForm">+ Create New Order</button>
+    </div>
+</div>
+
+@if (orders.Count == 0)
+{
+    <p>No orders found!</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>State</th>
+                <th>Total Window</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Name</td>
+                    <td>@order.State</td>
+                    <td>@order.Windows.Count</td>
+                    <td>@order.CreatedAt.ToShortDateString()</td>
+                    <td>@order.UpdatedAt.ToShortDateString()</td>
+                    <td class="text-end">
+                        <button class="btn btn-primary" @onclick="(() => ShowEditForm(order.Id))"><i class="oi oi-pencil"></i></button>
+                        <button class="btn btn-danger" @onclick="(() => DeleteOrder(order.Id))"><i class="oi oi-trash"></i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Order> orders { get; set; } = new List<Order>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await OrderService.GetOrdersAsync();
+    }
+
+    private void ShowCreateForm()
+    {
+        NavigationManager.NavigateTo($"order");
+    }
+
+    private void ShowEditForm(Guid id)
+    {
+        NavigationManager.NavigateTo($"order/{id}");
+    }
+
+    private async Task DeleteOrder(Guid id)
+    {
+        var isSuccess = await OrderService.DeleteAsync(id.ToString());
+        if (isSuccess)
+        {
+            orders = await OrderService.GetOrdersAsync();
+        }
+    }
+}
